@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const recipeController_1 = require("../controllers/recipeController");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const uploadMiddleware_1 = require("../middlewares/uploadMiddleware");
+const router = (0, express_1.Router)();
+router.use(authMiddleware_1.protect);
+router.get('/', recipeController_1.getRecipes);
+router.post('/', uploadMiddleware_1.upload.single('image'), recipeController_1.createRecipe);
+router.get('/:id', recipeController_1.getRecipeById);
+router.put('/:id', uploadMiddleware_1.upload.single('image'), recipeController_1.updateRecipe);
+router.delete('/:id', recipeController_1.deleteRecipe);
+exports.default = router;

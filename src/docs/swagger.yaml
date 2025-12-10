@@ -1,0 +1,287 @@
+openapi: 3.0.0
+info:
+  title: Laoka API
+  version: 1.0.0
+  description: API for Laoka Meal Planner
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      security: []
+      summary: Register
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                name: { type: string }
+      responses:
+        201:
+          description: Created
+  /auth/login:
+    post:
+      security: []
+      summary: Login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: OK
+  /auth/me:
+    get:
+      summary: Get Profile
+      tags: [Auth]
+      responses:
+        200:
+          description: Profile info
+  /upload:
+    post:
+      summary: Upload a file (Standalone)
+      tags: [Upload]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string }
+  /recipes:
+    get:
+      summary: List recipes
+      tags: [Recipes]
+      responses:
+        200:
+          description: List of recipes
+    post:
+      summary: Create recipe
+      tags: [Recipes]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                image: { type: string, format: binary }
+                prepTime: { type: integer }
+                servings: { type: integer }
+                origin: { type: string }
+                tags: { type: string, description: "JSON stringified array of strings" }
+                steps: { type: string, description: "JSON stringified array of strings" }
+                ingredients: 
+                  type: string 
+                  description: "JSON stringified array of objects {name, quantity, unit, category}"
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                image: { type: string }
+                prepTime: { type: integer }
+                servings: { type: integer }
+                origin: { type: string }
+                tags: { type: array, items: { type: string } }
+                steps: { type: array, items: { type: string } }
+                ingredients: 
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      quantity: { type: number }
+                      unit: { type: string }
+                      category: { type: string }
+      responses:
+        201:
+          description: Created
+  /recipes/{id}:
+    get:
+      summary: Get recipe details
+      tags: [Recipes]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Recipe details
+    put:
+      summary: Update recipe
+      tags: [Recipes]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                image: { type: string, format: binary }
+                prepTime: { type: integer }
+                servings: { type: integer }
+                origin: { type: string }
+                tags: { type: string }
+                steps: { type: string }
+                ingredients: { type: string }
+      responses:
+        200:
+          description: Updated
+    delete:
+      summary: Delete recipe
+      tags: [Recipes]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+  /planner:
+    get:
+      summary: Get meal plan
+      tags: [Planner]
+      parameters:
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        200:
+          description: List of meal plans
+    post:
+      summary: Add/Update meal plan
+      tags: [Planner]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date: { type: string, format: date-time }
+                type: { type: string, enum: [BREAKFAST, LUNCH, DINNER] }
+                recipeId: { type: string }
+                note: { type: string }
+      responses:
+        200:
+          description: Updated
+  /planner/clear:
+    delete:
+      summary: Clear meal plans
+      tags: [Planner]
+      parameters:
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        200:
+          description: Cleared
+  /planner/{id}:
+    delete:
+      summary: Remove one meal plan entry
+      tags: [Planner]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+  /shopping:
+    get:
+      summary: Get shopping list
+      tags: [Shopping]
+      responses:
+        200:
+          description: List items
+    post:
+      summary: Add manual item
+      tags: [Shopping]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                quantity: { type: number }
+                unit: { type: string }
+                category: { type: string }
+      responses:
+        201:
+          description: Created
+  /shopping/checked:
+    delete:
+      summary: Delete all checked items
+      tags: [Shopping]
+      responses:
+        200:
+          description: Deleted
+  /shopping/{id}:
+    delete:
+      summary: Delete item
+      tags: [Shopping]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+  /shopping/{id}/toggle:
+    patch:
+      summary: Toggle checked status
+      tags: [Shopping]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Toggled

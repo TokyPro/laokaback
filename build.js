@@ -23,12 +23,18 @@ try {
 
     // Copy swagger.yaml
     console.log('Copying swagger.yaml to dist...');
-    const srcFile = path.join(__dirname, 'src', 'docs', 'swagger.yaml');
-    const destDir = path.join(__dirname, 'dist', 'docs');
-    if (!fs.existsSync(destDir)){
-        fs.mkdirSync(destDir, { recursive: true });
+    const swaggerSrc = path.join(__dirname, 'src', 'docs', 'swagger.yaml');
+    const swaggerDestDir = path.join(__dirname, 'dist', 'docs');
+    if (!fs.existsSync(swaggerDestDir)){
+        fs.mkdirSync(swaggerDestDir, { recursive: true });
     }
-    fs.copyFileSync(srcFile, path.join(destDir, 'swagger.yaml'));
+    fs.copyFileSync(swaggerSrc, path.join(swaggerDestDir, 'swagger.yaml'));
+
+    // Copy prisma schema
+    console.log('Copying prisma schema to dist...');
+    const prismaSrc = path.join(__dirname, 'prisma', 'schema.prisma');
+    const prismaDest = path.join(__dirname, 'dist', 'schema.prisma');
+    fs.copyFileSync(prismaSrc, prismaDest);
 
 
     console.log('Build completed successfully!');
